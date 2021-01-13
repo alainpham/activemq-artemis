@@ -26,6 +26,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.federation.FederationConnectionConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.jboss.logging.Logger;
 
 public class FederationConnection {
 
@@ -35,7 +36,7 @@ public class FederationConnection {
    private volatile ClientSessionFactory clientSessionFactory;
    private volatile boolean started;
    private volatile boolean sharedConnection;
-
+   private static final Logger logger = Logger.getLogger(FederationConnection.class);
    public FederationConnection(Configuration configuration, String name, FederationConnectionConfiguration config) {
       this.config = config;
       this.circuitBreakerTimeout = config.getCircuitBreakerTimeout();
@@ -66,6 +67,8 @@ public class FederationConnection {
             serverLocator = ActiveMQClient.createServerLocatorWithHA(tcConfigs);
          } else {
             serverLocator = ActiveMQClient.createServerLocatorWithoutHA(tcConfigs);
+            serverLocator.setUseTopologyForLoadBalancing(false);
+            logger.info("### FORCING USE TOPOLOGY TO FALSE");
          }
       }
 
